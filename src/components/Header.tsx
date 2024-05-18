@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMugHot, faUser } from "@fortawesome/free-solid-svg-icons";
-import { signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
 import { parseFullName } from "parse-full-name";
 import Image from "next/image";
@@ -13,7 +13,7 @@ export default function Header({ session }: { session: Session | null }) {
   const { first } = parseFullName(name);
   return (
     <>
-      <header className="mb-16">
+      <header className="bg-white">
         <div className="max-w-2xl mx-auto p-4 flex items-center justify-between">
           <Link href={"/"} className="inline-flex items-center gap-1">
             <FontAwesomeIcon icon={faMugHot} className="h-8" />
@@ -26,8 +26,8 @@ export default function Header({ session }: { session: Session | null }) {
             <div className="flex gap-4 ml-4">
               {session && (
                 <div className="">
-                  <button
-                    onClick={() => signOut()}
+                  <Link
+                    href={"/profile"}
                     className="bg-yellow-300 rounded-full flex items-center gap-2 p-1 pr-4"
                   >
                     {userAvatar ? (
@@ -42,7 +42,7 @@ export default function Header({ session }: { session: Session | null }) {
                       <FontAwesomeIcon icon={faUser} />
                     )}
                     {first}
-                  </button>
+                  </Link>
                 </div>
               )}
               {!session && (

@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,10 +18,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
   return (
     <html lang="en">
       <body className={inter.className}>
+        <Toaster />
         <Header session={session} />
         {children}
       </body>
