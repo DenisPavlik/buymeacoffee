@@ -63,7 +63,9 @@ Two Mongoose models in `src/models/`:
 - **ProfileInfo** — `{ email (unique), username (unique), displayName, bio, avatarUrl, coverUrl }` + `timestamps`
 - **Donation** — `{ amount, name, email, message, crypto (btc|eth|ltc), paid }` + `timestamps`. Compound index on `{ email: 1, createdAt: -1 }` for paginated supporter lookups.
 
-DB connection in `src/lib/db.ts`: global singleton in dev (HMR-safe), fresh connection per request in prod. Pages also call `mongoose.connect()` directly — Mongoose deduplicates the connection.
+Two separate Mongo access paths on the same `MONGODB_URI`:
+- `src/lib/db.ts` exports a raw `MongoClient` promise (global singleton in dev / HMR-safe, fresh client in prod). It is used **only** by the NextAuth `MongoDBAdapter` (auth `users`/`sessions`/`accounts` collections).
+- App pages and server actions use a **separate Mongoose connection** — each entry point calls `await mongoose.connect(MONGODB_URI)` directly (Mongoose dedupes its own repeated connect calls). There is no shared connection helper.
 
 ### Auth
 
@@ -110,7 +112,7 @@ S3-hosted images are rendered via Next.js `<Image>` with `remotePatterns` config
 
 Vitest + jsdom + React Testing Library. Config: `vitest.config.ts`, setup: `vitest.setup.ts` (mocks `next/navigation` globally).
 
-Tests co-located next to source as `*.test.tsx` / `*.test.ts`. **38 tests across 4 files** covering Zod schemas, DonationForm (incl. regressions for the 2/4 amount bug and the "out-of-range disables submit" behavior), AccordionList, DonationList. Component tests for ProfileInfoForm/SearchButton/UsernameInput and API route tests are intentionally not implemented (low ROI vs mocking cost). **Two AccordionList tests are currently failing** — pre-existing in the untracked test file, not yet diagnosed.
+Tests co-located next to source as `*.test.tsx` / `*.test.ts`. **38 tests across 4 files, all passing** — Zod schemas (19), DonationForm (7, incl. regressions for the 2/4 amount bug and the "out-of-range disables submit" behavior), DonationList (7), AccordionList (5). Component tests for ProfileInfoForm/SearchButton/UsernameInput and API route tests are intentionally not implemented (low ROI vs mocking cost).
 
 ### Key Conventions
 
